@@ -66,7 +66,8 @@ cmake -S "$SRC_DIR" -B "$BUILD_DIR" -DCMAKE_BUILD_TYPE="$BUILD_TYPE"
 log "Building …"
 cmake --build "$BUILD_DIR" -j"$(nproc)"
 
-BIN_PATH="${BUILD_DIR}/bin/${BIN_NAME}"
+# KORRIGIERT: Binary liegt im build root, nicht in build/bin
+BIN_PATH="${BUILD_DIR}/${BIN_NAME}"
 [[ -x "$BIN_PATH" ]] || fail "Binary not found at ${BIN_PATH}"
 
 # ---------- AppDir layout ----------
