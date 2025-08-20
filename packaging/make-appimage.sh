@@ -125,10 +125,6 @@ export QML_SOURCES_PATHS="$QML_DIRS"
 
 # Build with Qt plugin and requested extra plugins
 log "Bundling dependencies with linuxdeploy …"
-PLUGIN_ARGS=(--plugin qt)
-for p in $QT_PLUGINS; do
-  PLUGIN_ARGS+=("--qt-plugin" "$p")
-done
 
 # Workaround for FUSE-less environments
 export APPIMAGE_EXTRACT_AND_RUN=1
@@ -137,7 +133,7 @@ export APPIMAGE_EXTRACT_AND_RUN=1
   -e "$APPDIR/usr/bin/${BIN_NAME}" \
   -d "$APPDIR/${APP_ID}.desktop" \
   -i "$APPDIR/usr/share/icons/hicolor/256x256/apps/${APP_ID}.png" \
-  "${PLUGIN_ARGS[@]}" \
+  --plugin qt \
   --output appimage
 
 # ---------- Move artifact ----------
