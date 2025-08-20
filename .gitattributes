@@ -1,0 +1,45 @@
+# --- EOL & Text ---
+* text=auto eol=lf
+
+# --- Binärformate (keine Diffs) ---
+*.AppImage binary
+*.zsync     binary
+*.png       binary
+*.jpg       binary
+*.jpeg      binary
+*.ico       binary
+*.icns      binary
+*.pdf       binary
+
+# --- Qt/QML/C++: sinnvolle Diffs ---
+*.cpp   diff=cpp
+*.c     diff=cpp
+*.h     diff=cpp
+*.hpp   diff=cpp
+*.qml   diff=cpp
+*.qrc   diff=cpp
+*.ui    diff=cpp
+CMakeLists.txt diff=cpp
+*.cmake diff=cpp
+
+# --- GitHub Linguist Tuning ---
+# Doku nicht als Code zählen
+docs/** linguist-documentation
+# Build-/Packaging-Skripte und generierte Inhalte aus Statistik raus
+packaging/** linguist-vendored
+build/**      linguist-vendored
+dist/**       linguist-vendored
+.github/**    linguist-vendored
+
+# --- Archive: unnötiges beim "git archive" weglassen ---
+/.gitignore         export-ignore
+/.gitattributes     export-ignore
+/.github/**         export-ignore
+/.vscode/**         export-ignore
+/build/**           export-ignore
+/dist/**            export-ignore
+/packaging/_tools/** export-ignore
+
+# --- Merge-Sonderfälle (falls nötig) ---
+# Sperrdateien/Locks nie automatisch mergen
+*.lock -merge
