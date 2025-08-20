@@ -1,3 +1,4 @@
+# .github/workflows/build.yml
 name: build-appimage
 on:
   push:
@@ -7,7 +8,12 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-24.04
+    strategy:
+      matrix:
+        os: 
+          - ubuntu-20.04  # GLIBC 2.31 (RHEL 8/9 compat)
+          - ubuntu-24.04  # GLIBC 2.38 (neuere Systeme)
+    runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
 
@@ -28,10 +34,11 @@ jobs:
       - name: Package AppImage
         run: |
           chmod +x packaging/make-appimage.sh
-          ./packaging/make-appimage.sh
+          OS_SUFFIX=$(echo ${{ matrix.os }} | sed 's/ubuntu-/u/') \
+            ./packaging/make-appimage.sh
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: appimage
+          name: appimage-${{ matrix.os }}
           path: dist/*.AppImage

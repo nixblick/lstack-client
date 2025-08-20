@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# packaging/make-appimage.sh - Minimal Qt AppImage builder
+# packaging/make-appimage.sh - Mit GLIBC Check
 set -euo pipefail
 
 # Config
@@ -20,6 +20,22 @@ LINUXDEPLOY_QT_URL="https://github.com/linuxdeploy/linuxdeploy-plugin-qt/release
 log() { printf "\033[1;34m[make-appimage]\033[0m %s\n" "$*"; }
 fail() { printf "\033[1;31m[make-appimage]\033[0m %s\n" "$*" >&2; exit 1; }
 
+# GLIBC Version checken
+check_glibc() {
+  local glibc_version
+  if command -v ldd >/dev/null 2>&1; then
+    glibc_version=$(ldd --version | head -n1 | grep -oE '[0-9]+\.[0-9]+')
+    log "Build System GLIBC: $glibc_version"
+    
+    # Warnung bei neuen Versionen
+    if awk -v ver="$glibc_version" 'BEGIN{exit(ver>=2.35)}'; then
+      log "GLIBC $glibc_version ist kompatibel mit älteren Systemen"
+    else
+      log "WARNUNG: GLIBC $glibc_version - AppImage läuft nur auf neueren Systemen"
+    fi
+  fi
+}
+
 dl_tool() {
   local url="$1" out="$2"
   if [[ ! -x "$out" ]]; then
@@ -37,9 +53,11 @@ version_from_git() {
   fi
 }
 
+check_glibc
 mkdir -p "$BUILD_DIR" "$DIST_DIR"
 VERSION="${VERSION:-$(version_from_git)}"
 ARCH="$(uname -m)"
+OS_SUFFIX="${OS_SUFFIX:-}"
 
 # Build
 log "Building …"
@@ -84,8 +102,6 @@ dl_tool "$LINUXDEPLOY_QT_URL" "$LINUXDEPLOY_QT"
 
 export VERSION
 export APPIMAGE_EXTRACT_AND_RUN=1
-
-# Nur QML aus ui/ Verzeichnis, keine nicht-existierenden Pfade
 export QML_SOURCES_PATHS="${SRC_DIR}/ui"
 
 log "Creating AppImage …"
@@ -96,10 +112,10 @@ log "Creating AppImage …"
   --plugin qt \
   --output appimage
 
-# Move result
+# Move result mit OS-Suffix
 artifact="$(ls -1 *.AppImage 2>/dev/null | head -n1)"
 [[ -f "$artifact" ]] || fail "No AppImage generated"
-final="${DIST_DIR}/${BIN_NAME}-${VERSION}-${ARCH}.AppImage"
+final="${DIST_DIR}/${BIN_NAME}-${VERSION}${OS_SUFFIX:+-$OS_SUFFIX}-${ARCH}.AppImage"
 mv "$artifact" "$final"
 chmod +x "$final"
 
