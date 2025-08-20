@@ -1,0 +1,25 @@
+name: build-appimage
+on: { push: { branches: ["main"], tags: ["v*"] }, pull_request: {} }
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Deps
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential cmake qtbase5-dev qtdeclarative5-dev \
+            qml-module-qtquick-controls2 libgl1-mesa-dev patchelf zsync wget
+      - name: Build
+        run: |
+          cmake -B build -S . -DCMAKE_BUILD_TYPE=Release
+          cmake --build build -j
+      - name: Package AppImage
+        run: |
+          chmod +x packaging/make-appimage.sh
+          ./packaging/make-appimage.sh
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: appimage
+          path: dist/*.AppImage

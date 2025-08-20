@@ -1,0 +1,14 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Run lstack-client",
+      "type": "cppdbg",
+      "request": "launch",
+      "program": "${workspaceFolder}/build/lstack-client",
+      "cwd": "${workspaceFolder}",
+      "MIMode": "gdb",
+      "stopAtEntry": false
+    }
+  ]
+}
